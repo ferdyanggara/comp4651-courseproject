@@ -2,6 +2,9 @@ import discord
 import os
 import requests
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 intents = discord.Intents.default()
 
@@ -16,7 +19,6 @@ async def on_message(message):
 
     # this is for NSFW (image moderation task)
     if message.attachments:
-        message_id = message.id
         attachment = message.attachments[0]
         print(f"Attachment URL: {attachment.url}")
 
@@ -40,4 +42,4 @@ async def on_message(message):
         else:
             await message.channel.send(f'{attachment.url.split("/")[-1]} is not removed as it has low NFSW score {nsfw_score}.')
 
-client.run("MTEwMDY0MjYwNTUyMTQ1MzExNw.GVuFjX.8JpSXaZyFPi1yxUnGHOY3EnHkw69uqAZQ0ZAI8")
+client.run(os.environ["DISCORD_BOT_TOKEN"])

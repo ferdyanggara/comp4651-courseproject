@@ -1,5 +1,4 @@
-discord bot token
-MTEwMDY0MjYwNTUyMTQ1MzExNw.GW_tlr.dJ8OWri3AUqUmjU7vRmTeMhO8zf_n7tz545oHo
+discord bot token is on unpublished .env
 
 deploy openfaas/opennfsw function 
 
