@@ -10,3 +10,11 @@ functions:
       read_timeout: 120
       write_timeout: 120
       exec_timeout: 120
+  toxic-comment:
+    lang: dockerfile
+    handler: ./toxic-comment
+    image: longnguyen1802/toxic-comment:latest
+    environment:
+      read_timeout: 600
+      write_timeout: 600
+      exec_timeout: 600
