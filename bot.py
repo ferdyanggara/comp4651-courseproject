@@ -47,25 +47,27 @@ async def on_message(message):
             await message.channel.send(
                 f'{attachment.url.split("/")[-1]} is not removed as it has low NFSW score {nsfw_score}.'
             )
-
+    
     # Toxic Comment Moderation
-    if not message.attachments and message.author != client.user:
-        url = "http://localhost:8080/function/toxic-comment"
-        headers = {"Content-Type": "text/plain"}
-        response = requests.post(url, headers=headers, data=message.content)
-        content = response.content.decode("utf-8")
-        result = json.loads(content)
-        label = result[0]["label"]
-        score = result[0]["score"]
-        msg_to_delete = await message.channel.fetch_message(message.id)
-        if label == "toxic" and score > 0.7:
-            await msg_to_delete.delete()
-            await message.channel.send(
-                f"message by {message.author} removed due as it is toxic comment"
-            )
+    message_deleted = False
+    # if not message.attachments and message.author != client.user:
+    #     url = "http://localhost:8080/function/toxic-comment"
+    #     headers = {"Content-Type": "text/plain"}
+    #     response = requests.post(url, headers=headers, data=message.content)
+    #     content = response.content.decode("utf-8")
+    #     result = json.loads(content)
+    #     label = result[0]["label"]
+    #     score = result[0]["score"]
+    #     msg_to_delete = await message.channel.fetch_message(message.id)
+    #     if label == "toxic" and score > 0.7:
+    #         message_deleted = True
+    #         await msg_to_delete.delete()
+    #         await message.channel.send(
+    #             f"message by {message.author} removed due as it is toxic comment"
+    #         )
 
     # ChatGPT
-    if not message.attachments and not message.author.bot:
+    if not message_deleted and not message.attachments and not message.author.bot:
         print("ChatGPT")
         await message.channel.typing()
 
@@ -90,7 +92,7 @@ async def on_message(message):
         response = requests.post(api_url, data=data, headers=headers)
         content = response.content.decode("utf-8")
         if content:
-            await message.channel.send(content)
+            await message.channel.send("ChatGPT:\n" + content)
         else:
             await message.channel.send("Something went wrong. Please try again later.")
 
