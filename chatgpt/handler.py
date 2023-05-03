@@ -58,7 +58,7 @@ def handle(req):
         try:
             content = content.removeprefix("OpenAI API responded:")
             dict = json.loads(content)
-        except json.JSONDecodeError:
+        except Exception:
             return "Something went wrong. Please try again later."
 
         if dict["error"] and dict["error"]["message"]:
