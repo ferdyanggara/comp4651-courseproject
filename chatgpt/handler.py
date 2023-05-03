@@ -4,8 +4,8 @@ import requests
 from dotenv import dotenv_values
 
 config = dotenv_values()
-api_key = config["OPENAI_API_KEY"]
 api_url = "https://chatgpt-api.shn.hk/v1"
+openai_api_key = config["OPENAI_API_KEY"]
 
 
 def handle(req):
@@ -18,8 +18,8 @@ def handle(req):
     dict = None
 
     try:
-        req = json.loads(req)   
-        user_id = req["user_id"]    
+        req = json.loads(req)
+        user_id = req["user_id"]
         chatgpt_bot_id = req["chatgpt_bot_id"]
         messages = req["messages"]
 
@@ -29,12 +29,21 @@ def handle(req):
             # Only get the last 20 messages
             if count == 20:
                 break
-            if str(msg["author_id"]) == str(user_id):
-                conversationLog.append({"role": "user", "content": msg["content"]})
-                count += 1
+
             if str(msg["author_id"]) == str(chatgpt_bot_id):
                 conversationLog.append({"role": "assistant", "content": msg["content"]})
                 count += 1
+                continue
+
+            if not msg["content"].startswith("!chat"):
+                continue
+
+            if str(msg["author_id"]) == str(user_id):
+                conversationLog.append(
+                    {"role": "user", "content": msg["content"].removeprefix("!chat")}
+                )
+                count += 1
+                continue
 
         conversationLog.reverse()
 
@@ -46,7 +55,7 @@ def handle(req):
         )
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}",
+            "Authorization": f"Bearer {openai_api_key}",
         }
 
         response = requests.post(api_url, data=data, headers=headers)

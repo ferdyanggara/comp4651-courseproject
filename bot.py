@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import ssl
 import certifi
 import asyncio
+
 load_dotenv()
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 intents = discord.Intents.default()
@@ -15,6 +16,8 @@ intents.message_content = True
 intents.guild_messages = True
 
 client = discord.Client(intents=intents, ssl_context=ssl_context)
+
+
 async def handleNsfw(message):
     attachment = message.attachments[0]
     print(f"Attachment URL: {attachment.url}")
@@ -42,6 +45,8 @@ async def handleNsfw(message):
         await message.channel.send(
             f'{attachment.url.split("/")[-1]} is not removed as it has low NFSW score {nsfw_score}.'
         )
+
+
 async def handleToxicComment(message):
     url = "http://localhost:8080/function/toxic-comment"
     headers = {"Content-Type": "text/plain"}
@@ -56,6 +61,8 @@ async def handleToxicComment(message):
         await message.channel.send(
             f"message by {message.author} removed due as it is toxic comment"
         )
+
+
 async def handleChatGpt(message):
     print("ChatGPT")
     await message.channel.typing()
@@ -81,20 +88,26 @@ async def handleChatGpt(message):
     response = requests.post(api_url, data=data, headers=headers)
     content = response.content.decode("utf-8")
     if content:
-        await message.channel.send("ChatGPT:\n" + content)
+        await message.channel.send(content)
     else:
         await message.channel.send("Something went wrong. Please try again later.")
+
+
 @client.event
 async def on_message(message):
-    #ChatGPT
-    if message.channel.name=="chatgpt" and message.author != client.user:
+    # ChatGPT
+    if (
+        message.type == discord.MessageType.default
+        and message.content.startswith("!chat")
+        and message.author != client.user
+    ):
         asyncio.create_task(handleChatGpt(message))
     # Image moderation
     elif message.attachments:
         asyncio.create_task(handleNsfw(message))
     # Toxic Comment Moderation
-    elif not message.attachments and message.author != client.user:
+    elif message.type == discord.MessageType.default and message.author != client.user:
         asyncio.create_task(handleToxicComment(message))
-        
-client.run(os.environ["DISCORD_BOT_TOKEN"])
 
+
+client.run(os.environ["DISCORD_BOT_TOKEN"])
