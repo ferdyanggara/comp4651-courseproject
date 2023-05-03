@@ -4,3 +4,4 @@ json
 python-dotenv
 ssl
 certifi
+asyncio
