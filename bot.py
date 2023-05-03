@@ -8,6 +8,7 @@ import certifi
 import asyncio
 
 load_dotenv()
+api_url = os.environ["API_URL"]
 discord_bot_id = os.environ["DISCORD_BOT_ID"]
 discord_bot_token = os.environ["DISCORD_BOT_TOKEN"]
 openai_api_key = os.environ["OPENAI_API_KEY"]
@@ -25,7 +26,7 @@ client = discord.Client(intents=intents, ssl_context=ssl_context)
 async def handleNsfw(message):
     attachment = message.attachments[0]
 
-    url = "http://localhost:8080/function/openfaas-opennsfw"
+    url = f"{api_url}/openfaas-opennsfw"
     headers = {"Content-Type": "text/plain"}
 
     response = requests.post(url, headers=headers, data=attachment.url)
@@ -51,7 +52,7 @@ async def handleNsfw(message):
 
 
 async def handleToxicComment(message):
-    url = "http://localhost:8080/function/toxic-comment"
+    url = f"{api_url}/toxic-comment"
     headers = {"Content-Type": "text/plain"}
     response = requests.post(url, headers=headers, data=message.content)
     content = response.content.decode("utf-8")
@@ -75,7 +76,7 @@ async def handleChatGpt(message):
             async for msg in message.channel.history(limit=n)
         ]
 
-    api_url = "http://localhost:8080/function/chatgpt"
+    url = f"{api_url}/function/chatgpt"
     messages = await fetch_messages(message, 100)
     messages.reverse()
     data = json.dumps(
@@ -90,7 +91,7 @@ async def handleChatGpt(message):
         "Content-Type": "application/json",
         "Authorization": f"Bearer {openai_api_key}",
     }
-    response = requests.post(api_url, data=data, headers=headers)
+    response = requests.post(url, data=data, headers=headers)
     content = response.content.decode("utf-8")
     content = json.loads(content)
 
