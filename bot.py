@@ -8,6 +8,10 @@ import certifi
 import asyncio
 
 load_dotenv()
+discord_bot_id = os.environ["DISCORD_BOT_ID"]
+discord_bot_token = os.environ["DISCORD_BOT_TOKEN"]
+openai_api_key = os.environ["OPENAI_API_KEY"]
+
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 intents = discord.Intents.default()
 
@@ -77,7 +81,7 @@ async def handleChatGpt(message):
     data = json.dumps(
         {
             "user_id": message.author.id,
-            "chatgpt_bot_id": os.environ["DISCORD_BOT_ID"],
+            "chatgpt_bot_id": discord_bot_id,
             "messages": messages,
         }
     )
@@ -115,4 +119,4 @@ async def on_message(message):
         asyncio.create_task(handleToxicComment(message))
 
 
-client.run(os.environ["DISCORD_BOT_TOKEN"])
+client.run(discord_bot_token)
