@@ -8,6 +8,10 @@ import certifi
 import asyncio
 
 load_dotenv()
+discord_bot_id = os.environ["DISCORD_BOT_ID"]
+discord_bot_token = os.environ["DISCORD_BOT_TOKEN"]
+openai_api_key = os.environ["OPENAI_API_KEY"]
+
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 intents = discord.Intents.default()
 
@@ -77,16 +81,23 @@ async def handleChatGpt(message):
     data = json.dumps(
         {
             "user_id": message.author.id,
-            "chatgpt_bot_id": os.environ["DISCORD_BOT_ID"],
+            "chatgpt_bot_id": discord_bot_id,
             "messages": messages,
         }
     )
 
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai_api_key}",
+    }
     response = requests.post(api_url, data=data, headers=headers)
     content = response.content.decode("utf-8")
-    if content:
-        await message.channel.send(content)
+    content = json.loads(content)
+
+    if content.get("response") is not None:
+        await message.channel.send(content.get("response"))
+    elif content.get("error") is not None:
+        await message.channel.send("Error:\n" + content.get("error"))
     else:
         await message.channel.send("Something went wrong. Please try again later.")
 
@@ -108,4 +119,4 @@ async def on_message(message):
         asyncio.create_task(handleToxicComment(message))
 
 
-client.run(os.environ["DISCORD_BOT_TOKEN"])
+client.run(discord_bot_token)
