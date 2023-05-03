@@ -4,17 +4,12 @@
 
 ### Set up dotenv
 
-1. Set up .env under root directory
+Set up .env under root directory
 
 ```
 API_URL=http://localhost:8080/function
 DISCORD_BOT_ID={your discord bot id}
 DISCORD_BOT_TOKEN={your discord bot token}
-```
-
-2. Set up .env under chatgpt directory
-
-```
 OPENAI_API_KEY={your openai api key}
 ```
 
@@ -49,14 +44,19 @@ Follow this [tutorial](https://docs.openfaas.com/deployment/kubernetes/):
 6. PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
 7. echo -n $PASSWORD | faas-cli login --username admin --password-stdin
 
-# Build Serverless Function
-8. set in stack.yml image: {docker user name}/chatgpt:latest
-9. faas-cli build stack.yml
-
 # Login Docker
-10. docker login --username {docker user name}
-11. faas-cli push stack.yml
+8. docker login --username {docker user name}
 
-# Deploy
-12. faas-cli deploy stack.yml
+# Set up stack.yml
+9. Change it to "image: {docker user name}/chatgpt:latest"
+
+# Build Docker images
+10. faas-cli template pull https://github.com/openfaas-incubator/python-flask-template
+11. faas-cli build stack.yml
+
+# Push Docker images into the registry
+12. faas-cli push stack.yml
+
+# Deploys the functions into the OpenFaaS gateway
+13. faas-cli deploy stack.yml
 ```
