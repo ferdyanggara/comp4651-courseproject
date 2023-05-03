@@ -29,16 +29,21 @@ def handle(req):
             # Only get the last 20 messages
             if count == 20:
                 break
+
+            if str(msg["author_id"]) == str(chatgpt_bot_id):
+                conversationLog.append({"role": "assistant", "content": msg["content"]})
+                count += 1
+                continue
+
+            if not msg["content"].startswith("!chat"):
+                continue
+
             if str(msg["author_id"]) == str(user_id):
                 conversationLog.append(
                     {"role": "user", "content": msg["content"].removeprefix("!chat")}
                 )
                 count += 1
-            elif not msg["content"].startswith("!chat"):
                 continue
-            elif str(msg["author_id"]) == str(chatgpt_bot_id):
-                conversationLog.append({"role": "assistant", "content": msg["content"]})
-                count += 1
 
         conversationLog.reverse()
 
