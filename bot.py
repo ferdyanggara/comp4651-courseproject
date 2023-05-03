@@ -20,7 +20,6 @@ client = discord.Client(intents=intents, ssl_context=ssl_context)
 
 async def handleNsfw(message):
     attachment = message.attachments[0]
-    print(f"Attachment URL: {attachment.url}")
 
     url = "http://localhost:8080/function/openfaas-opennsfw"
     headers = {"Content-Type": "text/plain"}
@@ -64,7 +63,6 @@ async def handleToxicComment(message):
 
 
 async def handleChatGpt(message):
-    print("ChatGPT")
     await message.channel.typing()
 
     async def fetch_messages(message, n):
@@ -73,7 +71,7 @@ async def handleChatGpt(message):
             async for msg in message.channel.history(limit=n)
         ]
 
-    api_url = os.environ["API_URL"] + "/chatgpt"
+    api_url = "http://localhost:8080/function/chatgpt"
     messages = await fetch_messages(message, 100)
     messages.reverse()
     data = json.dumps(

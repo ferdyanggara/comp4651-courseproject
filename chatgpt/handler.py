@@ -33,17 +33,15 @@ def handle(req):
             if str(msg["author_id"]) == str(chatgpt_bot_id):
                 conversationLog.append({"role": "assistant", "content": msg["content"]})
                 count += 1
-                continue
 
-            if not msg["content"].startswith("!chat"):
-                continue
+            elif not msg["content"].startswith("!chat"):
+                pass
 
-            if str(msg["author_id"]) == str(user_id):
+            elif str(msg["author_id"]) == str(user_id):
                 conversationLog.append(
                     {"role": "user", "content": msg["content"].removeprefix("!chat")}
                 )
                 count += 1
-                continue
 
         conversationLog.reverse()
 
