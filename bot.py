@@ -76,7 +76,7 @@ async def handleChatGpt(message):
             async for msg in message.channel.history(limit=n)
         ]
 
-    url = f"{api_url}/function/chatgpt"
+    url = f"{api_url}/chatgpt"
     messages = await fetch_messages(message, 100)
     messages.reverse()
     data = json.dumps(
