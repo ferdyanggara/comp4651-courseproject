@@ -82,11 +82,18 @@ async def handleChatGpt(message):
         }
     )
 
-    headers = {"Content-Type": "application/json"}
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai_api_key}",
+    }
     response = requests.post(api_url, data=data, headers=headers)
     content = response.content.decode("utf-8")
-    if content:
-        await message.channel.send(content)
+    content = json.loads(content)
+
+    if content.get("response") is not None:
+        await message.channel.send(content.get("response"))
+    elif content.get("error") is not None:
+        await message.channel.send("Error:\n" + content.get("error"))
     else:
         await message.channel.send("Something went wrong. Please try again later.")
 
