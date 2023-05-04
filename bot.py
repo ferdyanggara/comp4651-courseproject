@@ -2,10 +2,13 @@ import discord
 import os
 import requests
 import json
-from dotenv import load_dotenv
 import ssl
 import certifi
 import asyncio
+
+from io import BytesIO
+from discord import app_commands
+from dotenv import load_dotenv
 
 load_dotenv()
 api_url = os.environ["API_URL"]
@@ -21,6 +24,7 @@ intents.message_content = True
 intents.guild_messages = True
 
 client = discord.Client(intents=intents, ssl_context=ssl_context)
+tree = app_commands.CommandTree(client)
 
 
 async def handleNsfw(message):
@@ -118,6 +122,44 @@ async def on_message(message):
     # Toxic Comment Moderation
     elif message.type == discord.MessageType.default and message.author != client.user:
         asyncio.create_task(handleToxicComment(message))
+
+
+@client.event
+async def on_ready():
+    synced = await tree.sync()
+    print(f"Synced {len(synced)} commands!")
+
+
+@tree.command(name="image", description="Generate image with DALL·E 2a")
+async def image(interaction: discord.Interaction, prompt: str):
+    await interaction.response.defer(thinking=True)
+
+    data = json.dumps({"prompt": prompt})
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai_api_key}",
+    }
+
+    try:
+        response = requests.post(api_url + "/dalle2", data=data, headers=headers)
+        content = response.content.decode("utf-8")
+        content = json.loads(content)
+
+        if content.get("response") is not None:
+            image_url = content.get("response")
+            image_data = requests.get(image_url).content
+            image_file = BytesIO(image_data)
+            picture = discord.File(image_file, filename="image.png")
+
+            await interaction.followup.send(file=picture)
+        elif content.get("error") is not None:
+            await interaction.followup.send("Error:\n" + content.get("error"))
+        else:
+            await interaction.followup.send(
+                "Something went wrong. Please try again later."
+            )
+    except Exception as e:
+        await interaction.followup.send("Error:\n" + str(e))
 
 
 client.run(discord_bot_token)
