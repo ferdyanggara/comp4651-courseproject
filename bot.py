@@ -88,6 +88,7 @@ async def handleChatGpt(message):
             "user_id": message.author.id,
             "chatgpt_bot_id": discord_bot_id,
             "messages": messages,
+            "channel": message.channel.name,
         }
     )
 
@@ -112,7 +113,7 @@ async def on_message(message):
     # ChatGPT
     if (
         message.type == discord.MessageType.default
-        and message.content.startswith("!chat")
+        and (message.channel.name == "chatgpt" or message.content.startswith("!chat"))
         and message.author != client.user
     ):
         asyncio.create_task(handleChatGpt(message))

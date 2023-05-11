@@ -11,10 +11,11 @@ def remove_prefix(text, prefix):
 def handle(event, context):
     try:
         body = json.loads(event.body)
-        user_id, chatgpt_bot_id, messages = (
+        user_id, chatgpt_bot_id, messages, channel = (
             body.get("user_id"),
             body.get("chatgpt_bot_id"),
             body.get("messages"),
+            body.get("channel"),
         )
         authorization = event.headers.get("Authorization")
 
@@ -36,7 +37,7 @@ def handle(event, context):
                 conversationLog.append({"role": "assistant", "content": content})
                 count += 1
 
-            elif not content.startswith("!chat"):
+            elif not channel == "chatgpt" and not content.startswith("!chat"):
                 pass
 
             elif str(author_id) == str(user_id):
